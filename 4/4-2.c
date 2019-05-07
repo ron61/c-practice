@@ -23,10 +23,11 @@ typedef struct
 
 
 
-slobj slobj_new(int x)
+slobj slobj_new(int j,double x)
 {
     slobj p;
     NEW(p,1);
+    p->j = j;
     p->v = x;
     p->next = NULL;
     return p;
@@ -37,6 +38,8 @@ slist slist_new(void)
     slist L;
     NEW(L,1);
     L->head = NULL;
+    L->tail = NULL;
+    
     return L;
 }
 
@@ -48,14 +51,15 @@ void slist_insert_head(slist L, slobj p)
 
 void slist_insert_tail(slist L, slobj r)
 {
-    slobj p;
-    NEW(p,1);
-    L->tail->next = r;
-    p = L->tail;
-    L->tail = r;
     if(L->head == NULL)
     {
         L->head = r;
+        L->tail = r;
+    }
+    else
+    {
+        L->tail->next = r;
+        L->tail = r;
     }
 }
 
@@ -79,10 +83,10 @@ void slist_print(slist L)
 
     while (p != NULL) 
     {
-        printf("%d ", p->v);
+        printf("%lf", p->v);
         p = p->next;
     }
-    printf("-1¥n");
+    printf("-1\n");
 }
 
 
@@ -118,57 +122,15 @@ void slist_insert(slist L, slobj r)
     }
 }
 
-slist slist_read_and_sort(FILE *in)
-{
-    slist L;
-    int x;
-    L = slist_new();
-    while (1) 
-    {
-        fscanf(in, "%d", &x);
-        if (x < 0) break;
-        slist_insert(L, slobj_new(x));
-    }
-    return L;
-}
-
-slist slist_join(slist L1, slist L2)
-{
-    slist L3;
-    int v1, v2;
-    slobj p1, p2, p3;
-    L3 = slist_new();
-    p1 = L1->head; 
-    p2 = L2->head;
-    while (p1 != NULL && p2 != NULL) 
-    {
-        v1 = p1->v;
-        v2 = p2->v;
-        if (v1 < v2) 
-        {
-            p1 = p1->next;
-        } else if (v1 > v2) 
-        {
-            p2 = p2->next;
-        } else 
-        {
-            p3 = slobj_new(v1);
-            slist_insert(L3, p3);
-            p1 = p1->next;
-            p2 = p2->next;
-        }         
-    }
-    return L3;
-}
-
 smatrix smatrix_new(int n, int m)
 {
-    int i;
     smatrix S;
-    NEW(S, n)
-    for(i = 0;i < n;i ++)
+    NEW(S, 1);
+    S->n = n;
+    S->m = m;
+    NEW(S->A, n);
+    for(int i = 0;i < n;i ++)
     {
-        NEW(S->A[i], m)
         S->A[i] = slist_new();
     }
     return S;
@@ -179,19 +141,19 @@ smatrix smatrix_read()
     smatrix S;
     int n,m,row;
     double x;
-    S = smatrix_new(n,m);
-
     scanf("%d", &n);
     scanf("%d", &m);
+    S = smatrix_new(n,m);
 
     for(int i = 0; i < n; i++)
     {
         while(1)
         {
             scanf("%d", &row);
-            scanf("%lf", &x);
             if (row < 0) break;
-            slist_insert_tail(S->A[i], slobj_new(x));
+            row --;
+            scanf("%lf", &x);
+            slist_insert_tail(S->A[i], slobj_new(row,x));
             S->A[i]->tail->j = row;
         }
     }
@@ -201,18 +163,18 @@ smatrix smatrix_read()
 void smatrix_print(smatrix S)
 {
     slobj p;
-    printf("%d %d\n", S->m, S->n);
+    printf("%d %d\n", S->n, S->m);
 
     for(int i = 0; i < S->n; i++)
     {
         p = S->A[i]->head;
         while(p != NULL)
         {
-            printf("%d ", p->j);
+            printf("%d ", p->j+1);
             printf("%lf ", p->v);
             p = p->next;
         }
-        printf("-1¥n");
+        printf("-1\n");
     }
 }
 
@@ -226,7 +188,7 @@ smatrix smatrix_transpose(smatrix S)
         p = S->A[i]->head;
         while(p != NULL)
         {
-            slist_insert_tail(T->A[p->j], slobj_new(p->v));
+            slist_insert_tail(T->A[p->j], slobj_new(p->j,p->v));
             T->A[p->j]->tail->j = i;
             p = p->next;
         }
@@ -234,7 +196,7 @@ smatrix smatrix_transpose(smatrix S)
     return T;
 }
 
-void free_smatrix(smatrix S)
+void smatrix_free(smatrix S)
 {
     slobj p,q;
     for(int i = 0; i < S->n; i++)
@@ -254,11 +216,7 @@ void free_smatrix(smatrix S)
 int main(void)
 {
     smatrix S,T;
-    int n,m;
-    scanf("%d", &n);
-    scanf("%d", &m);
     S = smatrix_read();
-    T = smatrix_new(m,n);
     T = smatrix_transpose(S);
     smatrix_print(T);
     smatrix_free(S);

@@ -39,14 +39,15 @@ void slist_insert_head(slist L, slobj p)
 
 void slist_insert_tail(slist L, slobj r)
 {
-    slobj p;
-    NEW(p,1);
-    L->tail->next = r;
-    p = L->tail;
-    L->tail = r;
     if(L->head == NULL)
     {
         L->head = r;
+        L->tail = r;
+    }
+    else
+    {
+        L->tail->next = r;
+        L->tail = r;
     }
 }
 

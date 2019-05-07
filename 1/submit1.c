@@ -21,5 +21,6 @@ int main()
   sum = CalcSumOfSquares(n);
   
   printf("%d", sum);
+  printf("\n");
   return 0;
 }
