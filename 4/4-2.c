@@ -86,7 +86,7 @@ void slist_print(slist L)
         printf("%lf", p->v);
         p = p->next;
     }
-    printf("-1¥n");
+    printf("-1\n");
 }
 
 
@@ -121,53 +121,6 @@ void slist_insert(slist L, slobj r)
         r->next = p;
     }
 }
-
-/*
-slist slist_read_and_sort(FILE *in)
-{
-    slist L;
-    int x;
-    L = slist_new();
-    while (1) 
-    {
-        fscanf(in, "%d", &x);
-        if (x < 0) break;
-        slist_insert(L, slobj_new(x));
-    }
-    return L;
-}
-*/
-
-/*
-slist slist_join(slist L1, slist L2)
-{
-    slist L3;
-    int v1, v2;
-    slobj p1, p2, p3;
-    L3 = slist_new();
-    p1 = L1->head; 
-    p2 = L2->head;
-    while (p1 != NULL && p2 != NULL) 
-    {
-        v1 = p1->v;
-        v2 = p2->v;
-        if (v1 < v2) 
-        {
-            p1 = p1->next;
-        } else if (v1 > v2) 
-        {
-            p2 = p2->next;
-        } else 
-        {
-            p3 = slobj_new(v1);
-            slist_insert(L3, p3);
-            p1 = p1->next;
-            p2 = p2->next;
-        }         
-    }
-    return L3;
-}
-*/
 
 smatrix smatrix_new(int n, int m)
 {
