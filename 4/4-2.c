@@ -151,6 +151,7 @@ smatrix smatrix_read()
         {
             scanf("%d", &row);
             if (row < 0) break;
+            row --;
             scanf("%lf", &x);
             slist_insert_tail(S->A[i], slobj_new(row,x));
             S->A[i]->tail->j = row;
@@ -187,8 +188,8 @@ smatrix smatrix_transpose(smatrix S)
         p = S->A[i]->head;
         while(p != NULL)
         {
-            slist_insert_tail(T->A[(p->j)-1], slobj_new(p->j,p->v));
-            T->A[p->j-1]->tail->j = i;
+            slist_insert_tail(T->A[p->j], slobj_new(p->j,p->v));
+            T->A[p->j]->tail->j = i;
             p = p->next;
         }
     }
