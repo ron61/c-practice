@@ -21,8 +21,6 @@ typedef struct
     slist* A;
 }* smatrix;
 
-
-
 slobj slobj_new(int j,double x)
 {
     slobj p;
