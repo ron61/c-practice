@@ -12,7 +12,7 @@ int string_len(String str)
     {
         len ++;
     }
-    return len;
+    return len
 }
 
 String string_input(void)

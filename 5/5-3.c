@@ -6,28 +6,23 @@ typedef char* String;
 
 typedef struct slobj_ 
 {
-    String str; // 文字列
     struct slobj_* next; // 後の要素へのポインタ
+    int j; // j列目
+    String str; // 文字列
 }* slobj;
 
 typedef struct 
 {
+    int n; // 行数
     slobj head; // 先頭要素のポインタ
     slobj tail; // 末尾要素のポインタ
 }* slist;
 
-typedef struct
-{
-    int n;
-    slist* A;
-}* str_list;
-
-
-slobj slobj_new(int x)
+slobj slobj_new(String str)
 {
     slobj p;
     NEW(p,1);
-    p->v = x;
+    p->str = str;
     p->next = NULL;
     return p;
 }
@@ -40,25 +35,37 @@ slist slist_new(void)
     return L;
 }
 
-str_list str_list_new(int n)
+int string_compare(String p,String q)
 {
-    str_list S;
-    NEW(S, 1);
-    S->n = n;
-    NEW(S->A, n);
-    for(int i = 0;i < n;i ++)
+    int i = 0;
+    while(1)
     {
-        S->A[i] = slist_new();
+        if(q[i] == 0 && p[i] == 0)
+        {
+            return 0;
+        }
+        else if(p[i] < q[i])
+        {
+            return -1;
+        }
+        else if(p[i] > q[i])
+        {
+            return 1;
+        }
+        else 
+        {
+            
+        }
+        i ++;
     }
-    return S;
 }
 
- void slist_insert(slist L, slobj r)
+void slist_insert(slist L, slobj r)
 {
     slobj p, q;
     p = L->head;
     q = p;
-    while (p != NULL && p->v <= r->v) 
+    while (p != NULL && string_compare(p->str,r->str) == -1) 
     {
         q = p;
         p = p->next;
@@ -74,7 +81,22 @@ str_list str_list_new(int n)
     }
 }
 
-String string_input(void)
+
+void slist_insert_tail(slist L, slobj r)
+{
+    if(L->head == NULL)
+    {
+        L->head = r;
+        L->tail = r;
+    }
+    else
+    {
+        L->tail->next = r;
+        L->tail = r;
+    }
+}
+
+String string_read(void)
 {
     int c,i,len;
     char buf[1000];
@@ -92,28 +114,44 @@ String string_input(void)
     return str;
 }
 
-str_list str_list_read()
+slist slist_read_and_sort(void)
 {
-    str_list S;
+    slist L;
     int n;
-    String str;
-    scanf("%d", &n);
-    S = str_list_new(n);
+    scanf("%d",n);
+    L = slist_new();
 
-    for(int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++)
     {
-        
-        S->A[i] = string_input();
-        S->A[i]->tail->j = row;
-        
+        String str;
+        str = string_read();
+        slist_insert(L, str);
     }
-    return S;
+    return L;
+}
+
+void slist_print(slist L) {
+    slobj p;
+    p = L->head;
+
+    while (p != NULL) 
+    {
+        int i = 0;
+        while(p->str[i] != 0)
+        {
+            printf("%s", p->str[i]);
+            i ++;
+        }
+        p = p->next;
+    }
+    printf("\n");
 }
 
 int main()
 {
-    str_list S;
-    S = str_list_read();
-    
-
+    slist L;
+    L = slist_read_and_sort();
+    slist_print(L);
+    slist_free(L);
+    return 0;
 }
