@@ -35,6 +35,29 @@ slist slist_new(void)
     return L;
 }
 
+void slist_free(slist L)
+{
+    slobj p, q;
+    p = L->head;
+    while (p != NULL) 
+    {
+        q = p->next;
+        free(p);
+        p = q;
+    }
+    free(L);
+}
+
+int string_len(String str)
+{
+    int len = 0;
+    while (str[len] != 0)
+    {
+        len ++;
+    }
+    return len;
+}
+
 int string_compare(String p,String q)
 {
     int i = 0;
@@ -118,14 +141,26 @@ slist slist_read_and_sort(void)
 {
     slist L;
     int n;
-    scanf("%d",n);
+    scanf("%d",&n);
     L = slist_new();
+    String str;
+    slobj r;
 
     for (int i = 0; i < n; i++)
     {
         String str;
+        slobj r;
         str = string_read();
-        slist_insert(L, str);
+        /*
+        int i = 0;
+        while(str[i] != 0)
+        {
+            printf("%s", &str[i]);
+            i ++;
+        }
+        */
+        r = slobj_new(str);
+        slist_insert(L, r);
     }
     return L;
 }
@@ -139,10 +174,12 @@ void slist_print(slist L) {
         int i = 0;
         while(p->str[i] != 0)
         {
-            printf("%s", p->str[i]);
+            printf("%c", p->str[i]);
+            // printf("%d",i);
             i ++;
         }
         p = p->next;
+        printf("\n");
     }
     printf("\n");
 }
