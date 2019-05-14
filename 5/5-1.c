@@ -233,13 +233,13 @@ double smatrix_access(smatrix S, int i, int j)
 
 smatrix smatrix_product(smatrix A, smatrix B)
 {
-    smatrix _A;
-    _A = smatrix_transpose(A);
+    double x = 0;
+    smatrix _B;
+    _B = smatrix_transpose(B);
     smatrix C;
-    slobj p,q,r;
-    r = slobj_new(0,0);
+    slobj p,q;
 
-    if(_A->n != B->n || _A->m != B->m)
+    if(A->m != B->n)
     {
         C = smatrix_new(0,1);
         C->n = 0;
@@ -247,35 +247,44 @@ smatrix smatrix_product(smatrix A, smatrix B)
         return C;
     }
 
-    C = smatrix_new(_A->n,_A->m);
-    for(int i = 0; i < C->m; i++)
+    C = smatrix_new(A->n,B->m);
+    for(int i = 0;i < C->n; i++)
     {
-        p = A->A[i]->head;
-        q = B->A[i]->head;
-        
-        while(1)
+        for (int j = 0; j < C->m; j++)
         {
-            if(q == NULL || p == NULL)
+            p = A->A[i]->head;
+            q = _B->A[j]->head;
+            x = 0;
+            while(1)
             {
-                break;
+                if(q == NULL || p == NULL)
+                {
+                    break;
+                }
+                else if(q->j == p->j)
+                {
+                    x += p->v * q->v;
+                    p = p->next;
+                    q = q->next;
+                }
+                else if(p->j < q->j)
+                {
+                    p = p->next;
+                }
+                else if(p->j > q->j)
+                {
+                    q = q->next;
+                }
             }
-            else if(q->j == p->j)
+            if(x != 0)
             {
-                r->j = p->j;
-                r->v = p->v * q->v;
-                r->next = NULL;
+                slobj r;
+                r = slobj_new(0,0);
+                r->j = j;
+                r->v = x;
                 slist_insert_tail(C->A[i],r);
-                p = p->next;
-                q = q->next;
             }
-            else if(p->j < q->j)
-            {
-                p = p->next;
-            }
-            else if(p->j > q->j)
-            {
-                q = q->next;
-            }
+            
         }
     }
     return C;
