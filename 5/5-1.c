@@ -211,13 +211,85 @@ void smatrix_free(smatrix S)
     free(S);
 }
 
+double smatrix_access(smatrix S, int i, int j)
+{
+    slobj p;
+    p = S->A[i]->head;
+    for (int l = 0; l < j; l++)
+    {
+        if(p->j == j)
+        {
+            return p->v;
+        }
+        else if (p == NULL)
+        {
+            return 0;
+        }
+
+        p = p->next;
+    }
+    return 0;
+}
+
+smatrix smatrix_product(smatrix A, smatrix B)
+{
+    smatrix _A;
+    _A = smatrix_transpose(A);
+    smatrix C;
+    slobj p,q,r;
+    r = slobj_new(0,0);
+
+    if(_A->n != B->n || _A->m != B->m)
+    {
+        C = smatrix_new(0,1);
+        C->n = 0;
+        C->m = 0;
+        return C;
+    }
+
+    C = smatrix_new(_A->n,_A->m);
+    for(int i = 0; i < C->m; i++)
+    {
+        p = A->A[i]->head;
+        q = B->A[i]->head;
+        
+        while(1)
+        {
+            if(q == NULL || p == NULL)
+            {
+                break;
+            }
+            else if(q->j == p->j)
+            {
+                r->j = p->j;
+                r->v = p->v * q->v;
+                r->next = NULL;
+                slist_insert_tail(C->A[i],r);
+                p = p->next;
+                q = q->next;
+            }
+            else if(p->j < q->j)
+            {
+                p = p->next;
+            }
+            else if(p->j > q->j)
+            {
+                q = q->next;
+            }
+        }
+    }
+    return C;
+}
+
 int main(void)
 {
-    smatrix S,T;
-    S = smatrix_read();
-    T = smatrix_transpose(S);
-    smatrix_print(T);
-    smatrix_free(S);
-    smatrix_free(T);
+    smatrix A,B,C;
+    A = smatrix_read();
+    B = smatrix_read();
+    C = smatrix_product(A,B);
+    smatrix_print(C);
+    smatrix_free(A);
+    smatrix_free(B);
+    smatrix_free(C);
     return 0;
 }
