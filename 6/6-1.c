@@ -2,8 +2,21 @@
 #include <stdlib.h>
 #define NEW(p,n) {p = malloc((n)*sizeof(p[0])); if ((p)==NULL) {printf("not enough memory\n"); exit(1);};}
 
+#pragma region typedef
 typedef char* String;
 
+typedef struct slobj_ {
+  String key;
+  String jpn;
+  struct slobj_* next;
+}* slobj;
+
+typedef struct {
+  slobj head;
+}* slist;
+#pragma endregion
+
+#pragma region String
 int string_len(String str)
 {
   int len=0;
@@ -43,18 +56,9 @@ String string_input(void)
   str[len] =0;
   return str;
 }
+#pragma endregion
 
-
-typedef struct slobj_ {
-  String key;               // �p�ꕶ����
-  String jpn;               // ���{�ꕶ����
-  struct slobj_* next;      // ��̗v�f�ւ̃|�C���^
-}* slobj;
-
-typedef struct {
-  slobj head;               // �擪�v�f�̃|�C���^
-}* slist;
-
+#pragma region slobj
 slobj slobj_new(String eng, String jpn)
 {
   slobj p;
@@ -73,7 +77,9 @@ void slobj_free(slobj p)
     free(p);
   }
 }
+#pragma endregion
 
+#pragma region slist
 slist slist_new(void)
 {
   slist L;
@@ -109,8 +115,9 @@ typedef struct {
   int m;    // �n�b�V���\�̃T�C�Y
   slist* T; // �n�b�V���\�i���X�g�̔z��j
 }* hash;
+#pragma endregion
 
-
+#pragma region hash
 int hash_func(hash H, String key)
 {
   int h, i;
@@ -151,11 +158,14 @@ void hash_free(hash H)
 
 slobj hash_search(hash H, String eng)
 {
+
 }
 
 void hash_insert(hash H, slobj obj)
 {
+
 }
+#pragma endregion
 
 int main(void)
 {
