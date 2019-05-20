@@ -1,194 +1,214 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define NEW(p,n) {p = malloc((n)*sizeof(p[0])); if ((p)==NULL) {printf("not enough memory¥n"); exit(1);};}
+#define NEW(p,n) {p = malloc((n)*sizeof(p[0])); if ((p)==NULL) {printf("not enough memory\n"); exit(1);};}
 
+#pragma region typedef
 typedef char* String;
 
-typedef struct slobj_ 
-{
-    struct slobj_* next; // 後の要素へのポインタ
-    int j; // j列目
-    String str; // 文字列
+typedef struct slobj_ {
+    int k;
+    double v;
+    struct slobj_* next;    
 }* slobj;
 
-typedef struct 
-{
-    int n; // 行数
-    slobj head; // 先頭要素のポインタ
-    slobj tail; // 末尾要素のポインタ
+typedef struct {
+  slobj head;
 }* slist;
 
-slobj slobj_new(String str)
+typedef struct {
+  int n; 
+  int m;
+  slist* T;
+}* hash;
+#pragma endregion
+
+#pragma region String
+int string_len(String str)
 {
-    slobj p;
-    NEW(p,1);
-    p->str = str;
-    p->next = NULL;
-    return p;
+  int len=0;
+  while (str[len] != 0) {
+    len++;
+  }
+  return len;
 }
+
+int string_compare(String p, String q)
+{
+  int c1, c2;
+  int i = 0;
+  while (1) {
+    c1 = p[i];  c2 = q[i];
+    if (c1 < c2) return -1;
+    if (c1 > c2) return  1;
+    if (c1 == 0) break;
+    i++;
+  }
+  return 0;
+}
+
+String string_input(void)
+{
+  int i, len;
+  char buf[1000];
+  String str;
+  scanf("%s", buf);
+
+  len = string_len(buf);
+  
+  NEW(str, len+1);
+  for (i=0; i<len; i++) {
+    str[i] = buf[i];
+  }
+  str[len] =0;
+  return str;
+}
+#pragma endregion
+
+#pragma region slobj
+slobj slobj_new(int k, double v)
+{
+  slobj p;
+  NEW(p,1);
+  p->k = k;
+  p->v = v;
+  p->next = NULL;
+  return p;
+}
+
+/*
+void slobj_free(slobj p)
+{
+  if (p != NULL) {
+    free(p->k);
+    free(p->v);
+    free(p);
+  }
+}
+*/
+
+#pragma endregion
+
+#pragma region slist
 
 slist slist_new(void)
 {
-    slist L;
-    NEW(L,1);
-    L->head = NULL;
-    return L;
+  slist L;
+  NEW(L,1);
+  L->head = NULL;
+  return L;
+}
+
+slobj slist_search(slist L, int x)
+{
+    slobj p;
+    p = L->head;
+    while (p != NULL && p->k != x) 
+    {
+        p = p->next;
+    }
+    return p;
 }
 
 void slist_free(slist L)
 {
-    slobj p, q;
-    p = L->head;
-    while (p != NULL) 
-    {
-        q = p->next;
-        free(p);
-        p = q;
-    }
-    free(L);
+  slobj p, q;
+  p = L->head;
+  while (p != NULL) {
+    q = p->next;
+    free(p);
+    p = q;
+  }
+  free(L);
 }
 
-int string_len(String str)
+void slist_insert_head(slist L, slobj p)
 {
-    int len = 0;
-    while (str[len] != 0)
-    {
-        len ++;
-    }
-    return len;
+  p->next = L->head;
+  L->head = p;
 }
 
-int string_compare(String p,String q)
+#pragma endregion
+
+#pragma region hash
+int hash_func(hash H, int k)
 {
-    int i = 0;
-    while(1)
-    {
-        if(q[i] == 0 && p[i] == 0)
-        {
-            return 0;
-        }
-        else if(p[i] < q[i])
-        {
-            return -1;
-        }
-        else if(p[i] > q[i])
-        {
-            return 1;
-        }
-        else 
-        {
-            
-        }
-        i ++;
-    }
+  int h;
+  h = k % H->m;
+  
+  return h;
 }
 
-void slist_insert(slist L, slobj r)
+hash hash_new(int m)
 {
-    slobj p, q;
-    p = L->head;
-    q = p;
-    while (p != NULL && string_compare(p->str,r->str) == -1) 
-    {
-        q = p;
-        p = p->next;
-    }
-    if (p == L->head) 
-    {
-        L->head = r;
-        r->next = p;
-    } else 
-    {
-        q->next = r;
-        r->next = p;
-    }
+  int i;
+  hash H;
+
+  NEW(H, 1);
+  NEW(H->T, m);
+  H->n = 0;
+  H->m = m;
+
+  for (i=0; i<m; i++) {
+    H->T[i] = slist_new();
+  }
+
+  return H;
 }
 
-
-void slist_insert_tail(slist L, slobj r)
+void hash_free(hash H)
 {
-    if(L->head == NULL)
-    {
-        L->head = r;
-        L->tail = r;
-    }
-    else
-    {
-        L->tail->next = r;
-        L->tail = r;
-    }
+  int i;
+  for (i=0; i<H->m; i++) {
+    slist_free(H->T[i]);
+  }
+  free(H->T);
+  free(H);
 }
 
-String string_read(void)
+slobj hash_search(hash H, int k)
 {
-    int c,i,len;
-    char buf[1000];
-    String str;
-    scanf("%s",buf);
-
-    len = string_len(buf);
-
-    NEW(str,len+1);
-    for (int i = 0; i < len; i++)
-    {
-        str[i] = buf[i];
-    }
-    str[len] = 0;
-    return str;
-}
-
-slist slist_read_and_sort(void)
-{
-    slist L;
-    int n;
-    scanf("%d",&n);
-    L = slist_new();
-    String str;
-    slobj r;
-
-    for (int i = 0; i < n; i++)
-    {
-        String str;
-        slobj r;
-        str = string_read();
-        /*
-        int i = 0;
-        while(str[i] != 0)
-        {
-            printf("%s", &str[i]);
-            i ++;
-        }
-        */
-        r = slobj_new(str);
-        slist_insert(L, r);
-    }
-    return L;
-}
-
-void slist_print(slist L) {
     slobj p;
-    p = L->head;
+    int x;
+    x = hash_func(H,k);
+    p = slist_search(H->T[x],k);
 
-    while (p != NULL) 
-    {
-        int i = 0;
-        while(p->str[i] != 0)
-        {
-            printf("%c", p->str[i]);
-            // printf("%d",i);
-            i ++;
-        }
-        p = p->next;
-        printf("\n");
-    }
-    printf("\n");
+    return p;
 }
 
-int main()
+void hash_insert(hash H, slobj obj)
 {
-    slist L;
-    L = slist_read_and_sort();
-    slist_print(L);
-    slist_free(L);
-    return 0;
+    int x;
+    x = hash_func(H,obj->k);
+    slist_insert_head(H->T[x],obj);
+}
+#pragma endregion
+
+int main(void)
+{
+  hash H;
+  slobj obj;
+  int k;
+  double v;
+  int n, i, q;
+
+  H = hash_new(10001);
+  scanf(" %d", &n);
+  for (i=0; i<n; i++) {
+  	scanf("%d", &k);
+  	scanf("%lf", &v);
+  	hash_insert(H, slobj_new(k, v));
+  }
+  scanf(" %d", &q);
+  for (i=0; i<q; i++) {
+  	scanf("%d", &k);
+    obj = hash_search(H, k);
+    if (obj != NULL) {
+      printf("%d %lf\n", obj->k, obj->v);
+    } else {
+      printf("-1\n");
+    }
+  }
+  hash_free(H);
+  return 0;
+
 }
