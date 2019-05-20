@@ -6,14 +6,20 @@
 typedef char* String;
 
 typedef struct slobj_ {
-  String key;
-  String jpn;
-  struct slobj_* next;
+    int k;
+    double v;
+    struct slobj_* next;    
 }* slobj;
 
 typedef struct {
   slobj head;
 }* slist;
+
+typedef struct {
+  int n; 
+  int m;
+  slist* T;
+}* hash;
 #pragma endregion
 
 #pragma region String
@@ -59,27 +65,31 @@ String string_input(void)
 #pragma endregion
 
 #pragma region slobj
-slobj slobj_new(String eng, String jpn)
+slobj slobj_new(int k, double v)
 {
   slobj p;
   NEW(p,1);
-  p->key = eng;
-  p->jpn = jpn;
+  p->k = k;
+  p->v = v;
   p->next = NULL;
   return p;
 }
 
+/*
 void slobj_free(slobj p)
 {
   if (p != NULL) {
-    free(p->key);
-    free(p->jpn);
+    free(p->k);
+    free(p->v);
     free(p);
   }
 }
+*/
+
 #pragma endregion
 
 #pragma region slist
+
 slist slist_new(void)
 {
   slist L;
@@ -88,8 +98,15 @@ slist slist_new(void)
   return L;
 }
 
-slobj slist_search(slist L, String key)
+slobj slist_search(slist L, int x)
 {
+    slobj p;
+    p = L->head;
+    while (p != NULL && p->k != x) 
+    {
+        p = p->next;
+    }
+    return p;
 }
 
 void slist_free(slist L)
@@ -98,7 +115,7 @@ void slist_free(slist L)
   p = L->head;
   while (p != NULL) {
     q = p->next;
-    slobj_free(p);
+    free(p);
     p = q;
   }
   free(L);
@@ -110,23 +127,15 @@ void slist_insert_head(slist L, slobj p)
   L->head = p;
 }
 
-typedef struct {
-  int n;    // �v�f��
-  int m;    // �n�b�V���\�̃T�C�Y
-  slist* T; // �n�b�V���\�i���X�g�̔z��j
-}* hash;
 #pragma endregion
 
 #pragma region hash
-int hash_func(hash H, String key)
+int hash_func(hash H, int k)
 {
-  int h, i;
-  h = 0;  i = 0;
-  while (key[i] != 0) {
-    h = h * 101 + key[i];
-    i++;
-  }
-  return abs(h) % H->m;
+  int h;
+  h = k % H->m;
+  
+  return h;
 }
 
 hash hash_new(int m)
@@ -156,14 +165,21 @@ void hash_free(hash H)
   free(H);
 }
 
-slobj hash_search(hash H, String eng)
+slobj hash_search(hash H, int k)
 {
+    slobj p;
+    int x;
+    x = hash_func(H,k);
+    p = slist_search(H->T[x],k);
 
+    return p;
 }
 
 void hash_insert(hash H, slobj obj)
 {
-
+    int x;
+    x = hash_func(H,obj->k);
+    slist_insert_head(H->T[x],obj);
 }
 #pragma endregion
 
@@ -171,24 +187,25 @@ int main(void)
 {
   hash H;
   slobj obj;
-  String eng, jpn;
+  int k;
+  double v;
   int n, i, q;
 
   H = hash_new(10001);
   scanf(" %d", &n);
   for (i=0; i<n; i++) {
-  	eng = string_input();
-  	jpn = string_input();
-  	hash_insert(H, slobj_new(eng, jpn));
+  	scanf("%d", &k);
+  	scanf("%lf", &v);
+  	hash_insert(H, slobj_new(k, v));
   }
   scanf(" %d", &q);
   for (i=0; i<q; i++) {
-  	eng = string_input();
-    obj = hash_search(H, eng);
+  	scanf("%d", &k);
+    obj = hash_search(H, k);
     if (obj != NULL) {
-      printf("%s %s\n", obj->key, obj->jpn);
+      printf("%d %lf\n", obj->k, obj->v);
     } else {
-      printf("NO\n");
+      printf("-1\n");
     }
   }
   hash_free(H);
