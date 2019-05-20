@@ -151,14 +151,6 @@ slist slist_read_and_sort(void)
         String str;
         slobj r;
         str = string_read();
-        /*
-        int i = 0;
-        while(str[i] != 0)
-        {
-            printf("%s", &str[i]);
-            i ++;
-        }
-        */
         r = slobj_new(str);
         slist_insert(L, r);
     }

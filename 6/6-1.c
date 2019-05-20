@@ -1,259 +1,187 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define NEW(p,n) {p = malloc((n)*sizeof(p[0])); if ((p)==NULL) {printf("not enough memory¥n"); exit(1);};}
+#define NEW(p,n) {p = malloc((n)*sizeof(p[0])); if ((p)==NULL) {printf("not enough memory\n"); exit(1);};}
 
 typedef char* String;
 
-typedef struct slobj_ 
+int string_len(String str)
 {
-    struct slobj_* next; // 後の要素へのポインタ
-    int j; // j列目
-    String str; // 文字列
+  int len=0;
+  while (str[len] != 0) {
+    len++;
+  }
+  return len;
+}
+
+int string_compare(String p, String q)
+{
+  int c1, c2;
+  int i = 0;
+  while (1) {
+    c1 = p[i];  c2 = q[i];
+    if (c1 < c2) return -1;
+    if (c1 > c2) return  1;
+    if (c1 == 0) break;
+    i++;
+  }
+  return 0;
+}
+
+String string_input(void)
+{
+  int i, len;
+  char buf[1000];
+  String str;
+  scanf("%s", buf);
+
+  len = string_len(buf);
+  
+  NEW(str, len+1);
+  for (i=0; i<len; i++) {
+    str[i] = buf[i];
+  }
+  str[len] =0;
+  return str;
+}
+
+
+typedef struct slobj_ {
+  String key;               // �p�ꕶ����
+  String jpn;               // ���{�ꕶ����
+  struct slobj_* next;      // ��̗v�f�ւ̃|�C���^
 }* slobj;
 
-typedef struct 
-{
-    int n; // 行数
-    slobj head; // 先頭要素のポインタ
-    slobj tail; // 末尾要素のポインタ
+typedef struct {
+  slobj head;               // �擪�v�f�̃|�C���^
 }* slist;
 
-slobj slobj_new(String str)
+slobj slobj_new(String eng, String jpn)
 {
-    slobj p;
-    NEW(p,1);
-    p->str = str;
-    p->next = NULL;
-    return p;
+  slobj p;
+  NEW(p,1);
+  p->key = eng;
+  p->jpn = jpn;
+  p->next = NULL;
+  return p;
+}
+
+void slobj_free(slobj p)
+{
+  if (p != NULL) {
+    free(p->key);
+    free(p->jpn);
+    free(p);
+  }
 }
 
 slist slist_new(void)
 {
-    slist L;
-    NEW(L,1);
-    L->head = NULL;
-    return L;
+  slist L;
+  NEW(L,1);
+  L->head = NULL;
+  return L;
+}
+
+slobj slist_search(slist L, String key)
+{
 }
 
 void slist_free(slist L)
 {
-    slobj p, q;
-    p = L->head;
-    while (p != NULL) 
-    {
-        q = p->next;
-        free(p);
-        p = q;
-    }
-    free(L);
+  slobj p, q;
+  p = L->head;
+  while (p != NULL) {
+    q = p->next;
+    slobj_free(p);
+    p = q;
+  }
+  free(L);
 }
 
-int string_len(String str)
+void slist_insert_head(slist L, slobj p)
 {
-    int len = 0;
-    while (str[len] != 0)
-    {
-        len ++;
-    }
-    return len;
+  p->next = L->head;
+  L->head = p;
 }
 
-int string_compare(String p,String q)
+typedef struct {
+  int n;    // �v�f��
+  int m;    // �n�b�V���\�̃T�C�Y
+  slist* T; // �n�b�V���\�i���X�g�̔z��j
+}* hash;
+
+
+int hash_func(hash H, String key)
 {
-    int i = 0;
-    while(1)
-    {
-        if(q[i] == 0 && p[i] == 0)
-        {
-            return 0;
-        }
-        else if(p[i] < q[i])
-        {
-            return -1;
-        }
-        else if(p[i] > q[i])
-        {
-            return 1;
-        }
-        else 
-        {
-            
-        }
-        i ++;
-    }
+  int h, i;
+  h = 0;  i = 0;
+  while (key[i] != 0) {
+    h = h * 101 + key[i];
+    i++;
+  }
+  return abs(h) % H->m;
 }
 
-slobj slist_search(slist L,String key)
+hash hash_new(int m)
 {
-    slobj p;
-    p = L->head;
-    while(p != NULL && string_compare(p->str,key)!=0)
-    {
-        p = p->next;
-    }
-    return p;
+  int i;
+  hash H;
+
+  NEW(H, 1);
+  NEW(H->T, m);
+  H->n = 0;
+  H->m = m;
+
+  for (i=0; i<m; i++) {
+    H->T[i] = slist_new();
+  }
+
+  return H;
 }
 
-void slist_insert(slist L, slobj r)
+void hash_free(hash H)
 {
-    slobj p, q;
-    p = L->head;
-    q = p;
-    while (p != NULL && string_compare(p->str,r->str) == -1) 
-    {
-        q = p;
-        p = p->next;
-    }
-    if (p == L->head) 
-    {
-        L->head = r;
-        r->next = p;
-    } else 
-    {
-        q->next = r;
-        r->next = p;
-    }
+  int i;
+  for (i=0; i<H->m; i++) {
+    slist_free(H->T[i]);
+  }
+  free(H->T);
+  free(H);
 }
 
-//////////////////////////////////////
-void slist_insert_head(slist L,slobj r)
+slobj hash_search(hash H, String eng)
 {
-
 }
 
-void slist_insert_tail(slist L, slobj r)
+void hash_insert(hash H, slobj obj)
 {
-    if(L->head == NULL)
-    {
-        L->head = r;
-        L->tail = r;
-    }
-    else
-    {
-        L->tail->next = r;
-        L->tail = r;
-    }
 }
 
-String string_read(void)
+int main(void)
 {
-    int c,i,len;
-    char buf[1000];
-    String str;
-    scanf("%s",buf);
+  hash H;
+  slobj obj;
+  String eng, jpn;
+  int n, i, q;
 
-    len = string_len(buf);
-
-    NEW(str,len+1);
-    for (int i = 0; i < len; i++)
-    {
-        str[i] = buf[i];
+  H = hash_new(10001);
+  scanf(" %d", &n);
+  for (i=0; i<n; i++) {
+  	eng = string_input();
+  	jpn = string_input();
+  	hash_insert(H, slobj_new(eng, jpn));
+  }
+  scanf(" %d", &q);
+  for (i=0; i<q; i++) {
+  	eng = string_input();
+    obj = hash_search(H, eng);
+    if (obj != NULL) {
+      printf("%s %s\n", obj->key, obj->jpn);
+    } else {
+      printf("NO\n");
     }
-    str[len] = 0;
-    return str;
-}
+  }
+  hash_free(H);
+  return 0;
 
-//////////////////////////////////////
-String string_input(char str)
-{
-
-}
-
-slist slist_read_and_sort(void)
-{
-    slist L;
-    int n;
-    scanf("%d",&n);
-    L = slist_new();
-    String str;
-    slobj r;
-
-    for (int i = 0; i < n; i++)
-    {
-        String str;
-        slobj r;
-        str = string_read();
-        /*
-        int i = 0;
-        while(str[i] != 0)
-        {
-            printf("%s", &str[i]);
-            i ++;
-        }
-        */
-        r = slobj_new(str);
-        slist_insert(L, r);
-    }
-    return L;
-}
-
-//////////////////////////////////////
-slobj slist_delete(slist L,String key)
-{
-    slobj p,q;
-    p = L->head;
-    q = L->head;
-    while(p != NULL && string_compare(p->str,key)!=0)
-    {
-        q = p;
-        p = p->next;
-    }
-
-    if(p==NULL) return p;
-
-    q->next = p->next;
-
-    return p;
-}
-
-void slist_print(slist L) {
-    slobj p;
-    p = L->head;
-
-    while (p != NULL) 
-    {
-        int i = 0;
-        while(p->str[i] != 0)
-        {
-            printf("%c", p->str[i]);
-            // printf("%d",i);
-            i ++;
-        }
-        p = p->next;
-        printf("\n");
-    }
-    printf("\n");
-}
-
-int main()
-{
-    int i,n;
-    slist L;
-    slobj p;
-    String str;
-    char buf[100];
-
-    L = slist_new();
-
-    while(1)
-    {
-        if(fscanf(stdin,"%s",buf)!=1) break;
-
-        if(buf[0] =='i')
-        {
-            str = string_input(stdin);
-            slist_insert_head(L,slobj_new(str));
-        }
-        else if(buf[0]=='d')
-        {
-            str = string_input(stdin);
-            p = slist_delete(L,str);
-            if(p!= NULL) slobj_free(p);
-            free(str);
-        }
-    }
-
-    slist_print(L);
-    slist_free(L);
-    return 0;
 }
