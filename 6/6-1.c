@@ -83,6 +83,17 @@ int string_compare(String p,String q)
     }
 }
 
+slobj slist_search(slist L,String key)
+{
+    slobj p;
+    p = L->head;
+    while(p != NULL && string_compare(p->str,key)!=0)
+    {
+        p = p->next;
+    }
+    return p;
+}
+
 void slist_insert(slist L, slobj r)
 {
     slobj p, q;
@@ -104,6 +115,11 @@ void slist_insert(slist L, slobj r)
     }
 }
 
+//////////////////////////////////////
+void slist_insert_head(slist L,slobj r)
+{
+
+}
 
 void slist_insert_tail(slist L, slobj r)
 {
@@ -137,6 +153,12 @@ String string_read(void)
     return str;
 }
 
+//////////////////////////////////////
+String string_input(char str)
+{
+
+}
+
 slist slist_read_and_sort(void)
 {
     slist L;
@@ -165,6 +187,25 @@ slist slist_read_and_sort(void)
     return L;
 }
 
+//////////////////////////////////////
+slobj slist_delete(slist L,String key)
+{
+    slobj p,q;
+    p = L->head;
+    q = L->head;
+    while(p != NULL && string_compare(p->str,key)!=0)
+    {
+        q = p;
+        p = p->next;
+    }
+
+    if(p==NULL) return p;
+
+    q->next = p->next;
+
+    return p;
+}
+
 void slist_print(slist L) {
     slobj p;
     p = L->head;
@@ -186,8 +227,32 @@ void slist_print(slist L) {
 
 int main()
 {
+    int i,n;
     slist L;
-    L = slist_read_and_sort();
+    slobj p;
+    String str;
+    char buf[100];
+
+    L = slist_new();
+
+    while(1)
+    {
+        if(fscanf(stdin,"%s",buf)!=1) break;
+
+        if(buf[0] =='i')
+        {
+            str = string_input(stdin);
+            slist_insert_head(L,slobj_new(str));
+        }
+        else if(buf[0]=='d')
+        {
+            str = string_input(stdin);
+            p = slist_delete(L,str);
+            if(p!= NULL) slobj_free(p);
+            free(str);
+        }
+    }
+
     slist_print(L);
     slist_free(L);
     return 0;
