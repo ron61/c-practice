@@ -280,16 +280,6 @@ int main(void) {
     A = smatrix_read();
     B = smatrix_product(A,A);
     smatrix_print(B);
-    /*
-    for (int i = 0; i < 39; i++)
-    {
-        for (int j = 0; j < 39; j++)
-        {
-            printf("%3.0lf ",smatrix_access(A,i,j));
-        }
-        printf("\n");
-    }
-    */
     smatrix_free(A);
     smatrix_free(B);
     return 0;
