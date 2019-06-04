@@ -6,8 +6,7 @@
 typedef double* row_vector;
 typedef row_vector* matrix;
 
-row_vector create_row_vector(int m)
-{
+row_vector create_row_vector(int m) {
   int i;
   row_vector V;
   NEW(V, m);
@@ -15,8 +14,7 @@ row_vector create_row_vector(int m)
   return V;
 }
 
-matrix create_matrix(int n,int m)
-{
+matrix create_matrix(int n,int m) {
     int i;
     matrix M;
     NEW(M, n)
@@ -27,35 +25,55 @@ matrix create_matrix(int n,int m)
     return M;
 }
 
-matrix square_matrix(int n,int m,matrix A)
-{
+matrix square_matrix(int n,int m,matrix A) {
     matrix M;
     M = create_matrix(n,m);
+    double x;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            x = 0;
+            for (int k = 0; k < n; k++) {
+                x += A[i][k] * A[k][j];
+            }
+            M[i][j] = x;
+        }
+    }
+    return M;
 }
 
-void read_matrix(int n,int m,matrix A)
-{
+void read_matrix(int n,int m,matrix A) {
+    int row;
+    double x;
+
     for(int i = 0;i < n;i ++) {
-        for (int j = 0;j < m;j ++) {
-            scanf("%lf ", &A[i][j]);
+        while(1) {
+            scanf("%d", &row);
+            if (row < 0) break;
+            row --;
+            scanf("%lf",&x);
+            A[i][row] = x;
         }
     }
 }
 
-void print_matrix(int n,int m,matrix B)
-{
+void print_matrix(int n,int m,matrix M) {
+    int j;
     printf("%d %d\n", m, n);
 
-    for(int column = 0;column < m;column ++) {
-        for (int row = 0;row < n;row ++) {
-            printf("%lf ", B[column][row]);
+    for (int i = 0; i < n; i++) {
+        j = 0;
+        for (int j = 0; j < n; j++) {
+            if(M[i][j] != 0) {
+                printf("%d ",j+1);
+                printf("%lf ",M[i][j]);
+            }
         }
-        printf("\n");
+        printf("-1\n");
     }
 }
 
-int main()
-{
+int main() {
     matrix A,B;
     int n, m;
     scanf("%d %d", &n,&m);
