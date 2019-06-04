@@ -65,8 +65,8 @@ void print_matrix(int n,int m,matrix M) {
         j = 0;
         for (int j = 0; j < n; j++) {
             if(M[i][j] != 0) {
-                printf("%d ",j+1);
-                printf("%lf ",M[i][j]);
+                printf("%2d ",j+1);
+                printf("%3.2lf  ",M[i][j]);
             }
         }
         printf("-1\n");

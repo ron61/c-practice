@@ -159,8 +159,8 @@ void smatrix_print(smatrix S) {
     for(int i = 0; i < S->n; i++) {
         p = S->A[i]->head;
         while(p != NULL) {
-            printf("%d ", p->j+1);
-            printf("%lf ", p->v);
+            printf("%2d ", p->j+1);
+            printf("%3.2lf  ", p->v);
             p = p->next;
         }
         printf("-1\n");

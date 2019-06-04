@@ -159,8 +159,8 @@ void smatrix_print(smatrix S) {
     for(int i = 0; i < S->n; i++) {
         p = S->A[i]->head;
         while(p != NULL) {
-            printf("%d ", p->j+1);
-            printf("%lf ", p->v);
+            printf("%2d ", p->j+1);
+            printf("%3.2lf  ", p->v);
             p = p->next;
         }
         printf("-1\n");
@@ -199,14 +199,16 @@ void smatrix_free(smatrix S) {
 double smatrix_access(smatrix S, int i, int j) {
     slobj p;
     p = S->A[i]->head;
-    for (int l = 0; l < j; l++) {
-        if(p->j == j) {
-            return p->v;
+    for (int k = 0; k < j; k++) {
+        if(p != NULL) {
+            if(p->j == j) {
+                return p->v;
+            }
+            else if (p == NULL) {
+                return 0;
+            }
+            p = p->next;
         }
-        else if (p == NULL) {
-            return 0;
-        }
-        p = p->next;
     }
     return 0;
 }
@@ -216,20 +218,22 @@ double smatrix_access(smatrix S, int i, int j) {
 smatrix smatrix_product(smatrix A, smatrix B) {
     double x = 0;
     smatrix C;
-    slobj p,q;
     if(A->m != B->n) {
         C = smatrix_new(0,1);
         C->n = 0;
         C->m = 0;
         return C;
+    } else {
+        C = smatrix_new(A->n,B->m);
     }
-    C = smatrix_new(A->n,B->m);
+
     for(int i = 0;i < C->n; i++) {
         for (int j = 0; j < C->m; j++) {
-            p = A->A[i]->head;
-            q = _B->A[j]->head;
-            x = 0;
-            
+            x=0;
+            for (int k = 0; k < C->n; k++) {
+                x += smatrix_access(A,i,k) * smatrix_access(B,k,j);
+            }
+
             if(x != 0) {
                 slobj r;
                 r = slobj_new(0,0);
@@ -274,7 +278,17 @@ int main(void) {
     smatrix A,B;
     A = smatrix_read();
     B = smatrix_product(A,A);
-    smatrix_print(B);
+    //smatrix_print(B);
+
+    for (int i = 0; i < 39; i++)
+    {
+        for (int j = 0; j < 39; j++)
+        {
+            printf("%3.0lf ",smatrix_access(A,i,j));
+        }
+        printf("\n");
+    }
+    
     smatrix_free(A);
     smatrix_free(B);
     return 0;
