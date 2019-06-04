@@ -199,7 +199,7 @@ void smatrix_free(smatrix S) {
 double smatrix_access(smatrix S, int i, int j) {
     slobj p;
     p = S->A[i]->head;
-    for (int k = 0; k < j; k++) {
+    while(1) {
         if(p != NULL) {
             if(p->j == j) {
                 return p->v;
@@ -208,9 +208,10 @@ double smatrix_access(smatrix S, int i, int j) {
                 return 0;
             }
             p = p->next;
+        }else if (p == NULL) {
+            return 0;
         }
     }
-    return 0;
 }
 
 
@@ -278,8 +279,8 @@ int main(void) {
     smatrix A,B;
     A = smatrix_read();
     B = smatrix_product(A,A);
-    //smatrix_print(B);
-
+    smatrix_print(B);
+    /*
     for (int i = 0; i < 39; i++)
     {
         for (int j = 0; j < 39; j++)
@@ -288,7 +289,7 @@ int main(void) {
         }
         printf("\n");
     }
-    
+    */
     smatrix_free(A);
     smatrix_free(B);
     return 0;
