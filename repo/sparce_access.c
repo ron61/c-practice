@@ -211,10 +211,10 @@ double smatrix_access(smatrix S, int i, int j) {
     return 0;
 }
 
+
+// sparce_transposeとはこの関数だけが異なる
 smatrix smatrix_product(smatrix A, smatrix B) {
     double x = 0;
-    smatrix _B;
-    _B = smatrix_transpose(B);
     smatrix C;
     slobj p,q;
     if(A->m != B->n) {
@@ -229,22 +229,7 @@ smatrix smatrix_product(smatrix A, smatrix B) {
             p = A->A[i]->head;
             q = _B->A[j]->head;
             x = 0;
-            while(1) {
-                if(q == NULL || p == NULL) {
-                    break;
-                }
-                else if(q->j == p->j) {
-                    x += p->v * q->v;
-                    p = p->next;
-                    q = q->next;
-                }
-                else if(p->j < q->j) {
-                    p = p->next;
-                }
-                else if(p->j > q->j) {
-                    q = q->next;
-                }
-            }
+            
             if(x != 0) {
                 slobj r;
                 r = slobj_new(0,0);
