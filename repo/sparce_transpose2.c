@@ -225,7 +225,7 @@ smatrix smatrix_product(smatrix A, smatrix B) {
     for(int i = 0;i < C->n; i++) {
         for (int j = 0; j < C->m; j++) {
             p = A->A[i]->head;
-            q = _B->A[j]->head;
+            q = B->A[j]->head;
             x = 0;
             while(1) {
                 if(q == NULL || p == NULL) {
