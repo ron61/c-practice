@@ -213,8 +213,6 @@ double smatrix_access(smatrix S, int i, int j) {
 
 smatrix smatrix_product(smatrix A, smatrix B) {
     double x = 0;
-    smatrix _B;
-    _B = smatrix_transpose(B);
     smatrix C;
     slobj p,q;
     if(A->m != B->n) {
