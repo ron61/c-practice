@@ -1,7 +1,31 @@
-\documentclass{jsarticle}
-\usepackage{here}
+\documentclass[11pt,a4paper]{jsarticle}
+%
+\usepackage{listings,jlisting}
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage{ascmac}
 \usepackage[dvipdfmx]{graphicx}
-
+\usepackage{here}
+%ここからソースコードの表示に関する設定
+\lstset{
+  basicstyle={\ttfamily},
+  identifierstyle={\small},
+  commentstyle={\smallitshape},
+  keywordstyle={\small\bfseries},
+  ndkeywordstyle={\small},
+  stringstyle={\small\ttfamily},
+  frame={tb},
+  breaklines=true,
+  columns=[l]{fullflexible},
+  numbers=left,
+  xrightmargin=0zw,
+  xleftmargin=3zw,
+  numberstyle={\scriptsize},
+  stepnumber=1,
+  numbersep=1zw,
+  lineskip=-0.5ex
+}
+%ここまでソースコードの表示に関する設定
 \begin{document}
 
 
@@ -15,14 +39,45 @@
 
 \section{手法}
 
-今回の実験に用いたのは，以下の三つのアルゴリズムである．
+今回の実験に用いたのは，以下の4つのアルゴリズムである．
 \begin{itemize}
-\item 密行列(ijk)
-\item 密行列(ikj)
-\item 疎行列（transpose）
-\item 疎行列（access）
+\item dense_ijk
+\item dense_ikj
+\item sparce_transpose
+\item sparce_access
 \end{itemize}
+以下，上記の四つの説明をする．
+dense_ijkは，二次元配列の形で行列を保持するアルゴリズムである．
+次のような形で積を計算する．
+\begin{lstlisting}
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+        x = 0;
+        for (int k = 0; k < n; k++) {
+            x += A[i][k] * A[k][j];
+        }
+        M[i][j] = x;
+    }
+}
+\end{lstlisting}
 
+dense_ikjは，同じように二次元配列の形で行列を保持するが，積の計算の順序がやや異なる．
+具体的には以下のようになっている．
+\begin{lstlisting}
+for (int i = 0; i < n; i++) {
+    for (int k = 0; k < n; k++) {
+        for (int j = 0; j < m; j++) {
+            M[i][j] += A[i][k] * A[k][j];
+        }
+    }
+}
+\end{lstlisting}
+
+sparce_transposeは，隣接リストの形で行列を保持するものである．
+入力した行列と，その転置行列を考えることで計算する方針をとっている．
+
+sparce_accessは，transposeと同様に隣接リストで行列を保持するが，
+access関数を用いることで，転置を考えずに直接積を計算している．
 
 \section{実験結果}
 
