@@ -1,0 +1,2 @@
+matrixmarket filter=lfs diff=lfs merge=lfs -text
+output.txt filter=lfs diff=lfs merge=lfs -text
